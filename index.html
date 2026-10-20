@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Escudo Comunitario</title>
+<style>
+  :root {
+    --azul: #5b1a8a;
+    --azul-2: #7b1fa2;
+    --verde: #22e07a;
+    --blanco: #ffffff;
+    --fondo: #f5eefb;
+    --texto: #1e1433;
+    --gris: #5f5670;
+    --bajo: #1e9e5a;
+    --medio: #d98a00;
+    --alto: #c0392b;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: var(--fondo); color: var(--texto); line-height: 1.45;
+  }
+  header {
+    background: linear-gradient(135deg, #8a2be2 0%, #6a1fb0 60%, #5b1a8a 100%);
+    color: var(--blanco); padding: 16px 18px; border-bottom: 4px solid var(--verde);
+  }
+  header h1 { color: var(--verde); letter-spacing: .02em; }
+  header h1 { margin: 0; font-size: 1.25rem; }
+  header p { margin: 4px 0 0; font-size: .85rem; opacity: .85; }
+  nav { display: flex; gap: 6px; padding: 10px; background: #fff; border-bottom: 1px solid #dde3ec; overflow-x: auto; }
+  nav button {
+    flex: 1; min-width: max-content; border: 1px solid #c9d3e2; background: #fff; color: var(--azul);
+    padding: 9px 10px; border-radius: 8px; font-size: .85rem; cursor: pointer;
+  }
+  nav button.activo { background: var(--azul-2); color: #fff; border-color: var(--azul-2); }
+  nav button.activo { box-shadow: inset 0 -3px 0 var(--verde); }
+  main { max-width: 680px; margin: 0 auto; padding: 16px; }
+  section { display: none; }
+  section.activa { display: block; }
+  .tarjeta {
+    background: #fff; border-radius: 12px; padding: 16px; margin-bottom: 14px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.06);
+  }
+  h2 { font-size: 1.1rem; margin: 0 0 10px; color: var(--azul); }
+  textarea, input[type=text] {
+    width: 100%; padding: 10px; border: 1px solid #c9d3e2; border-radius: 8px;
+    font: inherit; font-size: .95rem; min-height: 110px;
+  }
+  input[type=text] { min-height: auto; }
+  .btn {
+    background: var(--azul-2); color: #fff; border: 0; padding: 11px 16px; border-radius: 8px;
+    font-size: .95rem; cursor: pointer; width: 100%; margin-top: 10px;
+  }
+  .btn.secundario { background: #e7edf6; color: var(--azul); }
+  .aviso { font-size: .8rem; color: var(--gris); margin-top: 8px; }
+  .veredicto {
+    border-radius: 12px; padding: 16px; color: #fff; margin-bottom: 12px;
+  }
+  .veredicto.bajo { background: var(--bajo); }
+  .veredicto.medio { background: var(--medio); }
+  .veredicto.alto { background: var(--alto); }
+  .veredicto strong { font-size: 1.15rem; display: block; }
+  ul { padding-left: 20px; margin: 6px 0; }
+  li { margin-bottom: 6px; }
+  .etiqueta { font-size: .75rem; text-transform: uppercase; letter-spacing: .04em; color: var(--gris); }
+  .fila { display: flex; justify-content: space-between; gap: 10px; padding: 10px 0; border-bottom: 1px solid #eef1f6; font-size: .92rem; }
+  .fila:last-child { border-bottom: 0; }
+  .chip { display: inline-block; font-size: .75rem; padding: 2px 8px; border-radius: 99px; background: #e7edf6; color: var(--azul); margin-right: 4px; }
+  .ok { color: var(--bajo); font-weight: 600; }
+  .alerta { color: var(--alto); font-weight: 600; }
+  .consent label { display: flex; gap: 10px; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid #eef1f6; font-size: .92rem; }
+  .consent input { margin-top: 4px; }
+  .log { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: .78rem; background: #0f1b2d; color: #cfe3ff; padding: 10px; border-radius: 8px; overflow-x: auto; white-space: pre; }
+  .hidden { display: none; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Escudo Comunitario</h1>
+  <p>Análisis bajo demanda de posibles fraudes digitales</p>
+</header>
+
+<nav>
+  <button class="tab activo" data-tab="analizar">¿Te llegó algo sospechoso?</button>
+  <button class="tab" data-tab="entidad">Verificar entidad</button>
+  <button class="tab" data-tab="consentimiento">Permisos</button>
+  <button class="tab" data-tab="registro">Registro</button>
+</nav>
+
+<main>
+
+  <!-- ANALIZAR -->
+  <section id="analizar" class="activa">
+    <div class="tarjeta">
+      <h2>1. Pega el mensaje o enlace</h2>
+      <p class="aviso" style="margin-top:0">Todo el análisis se hace en tu dispositivo. Ningún contenido se envía a un servidor.</p>
+      <textarea id="entrada" placeholder="Ej: Su cuenta será bloqueada hoy. Ingrese aquí para verificar: http://bancolombia-seguro.xyz/login"></textarea>
+      <div style="margin-top:10px">
+        <label class="etiqueta" for="captura">O sube una captura de pantalla</label>
+        <input type="file" id="captura" accept="image/*" style="display:block;margin-top:6px;font-size:.9rem">
+        <p class="aviso" id="estadoOCR">La captura se lee en tu dispositivo. Revisa el texto extraído antes de analizar.</p>
+      </div>
+      <button class="btn" id="btnAnalizar">Analizar</button>
+      <button class="btn secundario" id="btnEjemplo">Cargar ejemplo</button>
+    </div>
+    <div id="resultado"></div>
+  </section>
+
+  <!-- ENTIDAD -->
+  <section id="entidad">
+    <div class="tarjeta">
+      <h2>2. Verificar número o remitente</h2>
+      <p class="aviso" style="margin-top:0">Compara el número o remitente con los canales publicados por la entidad. Los canales de referencia se cargarían desde las fuentes oficiales de cada entidad vigilada por la Superfinanciera.</p>
+      <input type="text" id="remitente" placeholder="Remitente o número. Ej: 018000 o BANCOLOMBIA">
+      <button class="btn" id="btnEntidad">Verificar</button>
+      <div id="resEntidad" style="margin-top:12px"></div>
+    </div>
+  </section>
+
+  <!-- CONSENTIMIENTO -->
+  <section id="consentimiento">
+    <div class="tarjeta consent">
+      <h2>Permisos (opcionales y revocables)</h2>
+      <p class="aviso" style="margin-top:0">Cada permiso se activa por separado. Puedes cambiarlo en cualquier momento.</p>
+      <label><input type="checkbox" id="p1"> <span><strong>Verificador de enlaces.</strong> Analizar un enlace solo cuando yo lo envíe.</span></label>
+      <label><input type="checkbox" id="p2"> <span><strong>Filtro de SMS o llamadas (Android).</strong> Analizar mensajes en el dispositivo. Opcional.</span></label>
+      <label><input type="checkbox" id="p3"> <span><strong>Guardar registro del caso.</strong> Conservar solo el veredicto, sin el contenido original.</span></label>
+      <p class="aviso">Puedes ejercer tus derechos de conocimiento, actualización, rectificación y supresión (Ley 1581 de 2012). Consulta la política de privacidad antes de activar cualquier permiso.</p>
+    </div>
+  </section>
+
+  <!-- REGISTRO -->
+  <section id="registro">
+    <div class="tarjeta">
+      <h2>Registro verificable del caso</h2>
+      <p class="aviso" style="margin-top:0">Cada caso guardado registra una huella SHA-256 del mensaje, sin guardar el mensaje. Las entradas están encadenadas: cada una incluye la huella de la anterior. El registro se guarda solo en tu navegador y no es una prueba ante terceros.</p>
+      <div id="estadoCadena" class="aviso"></div>
+      <div id="listaRegistro"></div>
+      <button class="btn secundario" id="btnCadena">Verificar cadena</button>
+      <h2 style="margin-top:18px">Comprobar un mensaje</h2>
+      <p class="aviso" style="margin-top:0">Pega el texto original. Si coincide con un caso guardado, lo confirmamos.</p>
+      <textarea id="textoVerif" style="min-height:80px"></textarea>
+      <button class="btn secundario" id="btnVerif">Comprobar</button>
+      <div id="resVerif" class="aviso"></div>
+    </div>
+  </section>
+
+</main>
+
+<script>
+/* ---------- Utilidades ---------- */
+const $ = (id) => document.getElementById(id);
+
+async function sha256(texto) {
+  const data = new TextEncoder().encode(texto);
+  const buf = await crypto.subtle.digest("SHA-256", data);
+  return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, "0")).join("");
+}
+
+function extraerEnlaces(texto) {
+  return texto.match(/https?:\/\/[^\s]+|www\.[^\s]+/gi) || [];
+}
+
+/* ---------- Reglas de análisis (heurísticas explicables) ---------- */
+const PATRONES_URGENCIA = [
+  /bloque(ada|o|ar)/i, /suspend(ida|ido|er)/i, /urgente/i, /hoy mismo/i,
+  /últim[ao]s? (horas|minutos)/i, /inmediatamente/i, /vence/i, /caducar/i
+];
+const PATRONES_DATOS = [
+  /clave/i, /contraseña/i, /c[oó]digo/i, /token/i, /otp/i,
+  /n[uú]mero de (tarjeta|cuenta)/i, /c[eé]dula/i, /datos personales/i
+];
+const PATRONES_SUPLANTACION = [
+  /bancolombia|davivienda|nequi|daviplata|bbva|banco de bogot|banco agrario|bancoomeva/i,
+  /dian|fiscal[ií]a|polic[ií]a|superfinanciera|migraci[oó]n/i,
+  /premio|ganaste|reembolso|devoluci[oó]n|subsidio/i
+];
+const DOMINIOS_SOSPECHOSOS = [".xyz", ".top", ".click", ".zip", ".mov", ".gq", ".tk", ".ml", ".cf"];
+const ACORTADORES = ["bit.ly", "tinyurl", "t.co", "goo.gl", "is.gd", "cutt.ly", "rb.gy"];
+
+/* Reportes de la comunidad: DATOS SIMULADOS para demostrar el flujo.
+   Se guarda solo el dominio, nunca la URL completa. Umbral: 5 personas distintas en 72 horas. */
+const REPORTES_SIMULADOS = {
+  "bancolombia-seguro.xyz": { reportantes: 14, horas: 30 },
+  "premio-reclamo-ejemplo.click": { reportantes: 3, horas: 10 }
+};
+const UMBRAL_REPORTANTES = 5;
+const VENTANA_HORAS = 72;
+
+function consultarReportes(host) {
+  const r = REPORTES_SIMULADOS[host];
+  if (!r) return { reportantes: 0, horas: null, activo: false };
+  const activo = r.reportantes >= UMBRAL_REPORTANTES && r.horas <= VENTANA_HORAS;
+  return { ...r, activo };
+}
+
+function analizarEnlace(url) {
+  const hallazgos = [];
+  let riesgo = 0;
+  let host = "";
+  try {
+    const u = new URL(url.startsWith("http") ? url : "http://" + url);
+    host = u.hostname.toLowerCase();
+    if (u.protocol === "http:") { hallazgos.push("El enlace no usa conexión segura (http)."); riesgo += 1; }
+    if (/^\d{1,3}(\.\d{1,3}){3}$/.test(host)) { hallazgos.push("El enlace usa una dirección IP en vez de un nombre de sitio."); riesgo += 3; }
+    if (DOMINIOS_SOSPECHOSOS.some(t => host.endsWith(t))) { hallazgos.push("La terminación del dominio es poco usada para servicios oficiales."); riesgo += 2; }
+    if (ACORTADORES.some(a => host.includes(a))) { hallazgos.push("Es un enlace acortado: no se ve a dónde lleva realmente."); riesgo += 2; }
+    if (/(banco|bancolombia|davivienda|nequi|dian|seguro|login|verifica|validar)/i.test(host) && !/\.(com\.co|gov\.co|com)$/.test(host)) {
+      hallazgos.push("El nombre del sitio imita una entidad, pero el dominio no es el oficial.");
+      riesgo += 3;
+    }
+    if (host.split(".").length > 4) { hallazgos.push("El dominio tiene demasiados subniveles, algo común en sitios falsos."); riesgo += 1; }
+  } catch (e) {
+    hallazgos.push("No se pudo interpretar el enlace.");
+    riesgo += 1;
+  }
+  const imita = ENTIDADES.find(e => e.alias.some(a => host.includes(a)));
+  const oficial = ENTIDADES.find(e => e.dominios.some(d => host === d || host.endsWith("." + d)));
+  if (imita && !oficial) {
+    hallazgos.push(`El enlace menciona a ${imita.nombre}, pero no es un dominio oficial de esa entidad. Dominios oficiales: ${imita.dominios.join(", ")}.`);
+    riesgo += 3;
+  }
+  const rep = consultarReportes(host);
+  if (rep.activo) {
+    hallazgos.push(`Reportado por ${rep.reportantes} personas distintas en las últimas ${rep.horas} horas (dato simulado).`);
+    riesgo += 3;
+  }
+  return { host, hallazgos, riesgo, reportes: rep };
+}
+
+function analizarTexto(texto) {
+  const motivos = [];
+  let puntos = 0;
+
+  if (PATRONES_URGENCIA.some(p => p.test(texto))) { motivos.push("Usa lenguaje de urgencia o amenaza para presionar una acción rápida."); puntos += 2; }
+  if (PATRONES_DATOS.some(p => p.test(texto))) { motivos.push("Pide claves, códigos o datos personales o financieros."); puntos += 3; }
+  if (PATRONES_SUPLANTACION.some(p => p.test(texto))) { motivos.push("Menciona una entidad o autoridad. Verifícala por un canal oficial."); puntos += 1; }
+
+  const enlaces = extraerEnlaces(texto);
+  const detalleEnlaces = enlaces.map(analizarEnlace);
+  detalleEnlaces.forEach(d => { puntos += d.riesgo; d.hallazgos.forEach(h => motivos.push(h)); });
+
+  if (/\b(ingrese|haga clic|click|ingresa|responde|confirme)\b/i.test(texto) && enlaces.length) {
+    motivos.push("Te pide hacer clic o responder de inmediato.");
+    puntos += 1;
+  }
+
+  let nivel = "bajo";
+  if (puntos >= 5) nivel = "alto";
+  else if (puntos >= 2) nivel = "medio";
+
+  return { nivel, puntos, motivos: [...new Set(motivos)], enlaces: detalleEnlaces };
+}
+
+const QUE_HACER = {
+  bajo: [
+    "No se detectaron señales claras de fraude, pero no compartas claves ni códigos.",
+    "Si dudas, comunícate con la entidad por su canal oficial, no con los datos del mensaje."
+  ],
+  medio: [
+    "No hagas clic en los enlaces ni respondas el mensaje.",
+    "Comunícate con la entidad usando el número o la app oficial que ya tienes guardados.",
+    "Si ya diste algún dato, cambia tu clave y avisa a tu entidad de inmediato."
+  ],
+  alto: [
+    "No hagas clic, no respondas y no descargues nada.",
+    "Si ingresaste datos, cambia tu clave desde la app oficial y bloquea tu tarjeta.",
+    "Comunícate con tu entidad por su canal oficial y denuncia el caso."
+  ]
+};
+
+/* ---------- Render: análisis ---------- */
+async function analizar() {
+  const texto = $("entrada").value.trim();
+  if (!texto) { $("resultado").innerHTML = `<div class="tarjeta">Pega un mensaje o enlace para analizar.</div>`; return; }
+
+  const r = analizarTexto(texto);
+  const huella = await sha256(texto);
+  const etiquetaNivel = { bajo: "Riesgo bajo", medio: "Riesgo medio", alto: "Riesgo alto" }[r.nivel];
+
+  const motivosHTML = r.motivos.length
+    ? `<ul>${r.motivos.map(m => `<li>${m}</li>`).join("")}</ul>`
+    : `<p class="ok">No encontramos señales de alerta en este texto.</p>`;
+
+  const enlacesHTML = r.enlaces.length
+    ? r.enlaces.map(e => `<div class="fila"><span>${e.host || "(sin dominio)"}</span><span><span class="chip">${e.riesgo} pts</span>${e.reportes && e.reportes.reportantes ? `<span class="chip">${e.reportes.reportantes} reportes (simulado)</span>` : ""}</span></div>`).join("")
+    : `<p class="aviso">No hay enlaces en el texto.</p>`;
+
+  $("resultado").innerHTML = `
+    <div class="veredicto ${r.nivel}">
+      <strong>${etiquetaNivel}</strong>
+      <span>Puntaje de señales: ${r.puntos}</span>
+    </div>
+
+    <div class="tarjeta">
+      <div class="etiqueta">Motivos</div>
+      ${motivosHTML}
+    </div>
+
+    <div class="tarjeta">
+      <div class="etiqueta">Enlaces revisados</div>
+      ${enlacesHTML}
+      <p class="aviso">Este análisis no consulta listas públicas de phishing ni la antigüedad del dominio. Esas fuentes se integrarán en una próxima versión. Los reportes de la comunidad mostrados son simulados y solo sirven para demostrar el flujo.</p>
+    </div>
+
+    <div class="tarjeta">
+      <div class="etiqueta">Qué hacer</div>
+      <ul>${QUE_HACER[r.nivel].map(x => `<li>${x}</li>`).join("")}</ul>
+    </div>
+
+    <div class="tarjeta">
+      <div class="etiqueta">Dónde denunciar</div>
+      <ul>
+        <li><strong>Denuncia virtual (ADenunciar)</strong>, sistema de la Policía Nacional y la Fiscalía General de la Nación: <a href="https://www.policia.gov.co/denuncia-virtual" target="_blank" rel="noopener">policia.gov.co/denuncia-virtual</a></li>
+        <li><strong>Fiscalía General de la Nación</strong>: canales oficiales de denuncia en fiscalia.gov.co.</li>
+      </ul>
+      <p class="aviso">Enlace tomado del sitio oficial de la Policía Nacional. Antes de enviar datos, confirma que la dirección siga vigente.</p>
+    </div>
+
+    <div class="tarjeta">
+      <div class="etiqueta">Registro del caso</div>
+      <div class="fila"><span>Huella SHA-256</span><span class="log" style="padding:4px 6px">${huella.slice(0, 16)}…</span></div>
+      <div class="fila"><span>Fecha</span><span>${new Date().toLocaleString("es-CO", { timeZone: "America/Bogota" })}</span></div>
+      <button class="btn secundario" id="btnGuardar">Guardar registro</button>
+    </div>
+  `;
+
+  $("btnGuardar").onclick = () => guardarRegistro({ huella, nivel: r.nivel, puntos: r.puntos, fecha: new Date().toISOString() });
+}
+
+/* ---------- Registro (solo si el usuario lo autoriza) ---------- */
+const CLAVE_REGISTRO = "escudo_registros";
+const leerRegistros = () => JSON.parse(localStorage.getItem(CLAVE_REGISTRO) || "[]");
+const guardarTodos = (lista) => localStorage.setItem(CLAVE_REGISTRO, JSON.stringify(lista));
+
+/* Cada entrada incluye la huella de la anterior (cadena). Así, cambiar o quitar una
+   entrada en medio de la lista se detecta al verificar. */
+async function hashDeEntrada(e) {
+  const { hashEntrada, ...resto } = e;
+  return sha256(JSON.stringify(resto));
+}
+
+async function guardarRegistro(entrada) {
+  if (!$("p3").checked) {
+    alert("Activa el permiso 'Guardar registro del caso' en la pestaña Permisos.");
+    return;
+  }
+  const lista = leerRegistros();
+  const nueva = { ...entrada, previa: lista.length ? lista[0].hashEntrada : "INICIO" };
+  nueva.hashEntrada = await hashDeEntrada(nueva);
+  lista.unshift(nueva);
+  guardarTodos(lista.slice(0, 50));
+  await pintarRegistro();
+  alert("Registro guardado. Solo se guardó la huella y el veredicto, no el mensaje.");
+}
+
+async function verificarCadena(lista) {
+  for (let i = 0; i < lista.length; i++) {
+    const e = lista[i];
+    if (await hashDeEntrada(e) !== e.hashEntrada) {
+      return { ok: false, pos: i + 1, motivo: "el contenido de la entrada no coincide con su huella." };
+    }
+    if (i < lista.length - 1 && e.previa !== lista[i + 1].hashEntrada) {
+      return { ok: false, pos: i + 1, motivo: "la entrada no está encadenada con la anterior." };
+    }
+  }
+  return { ok: true };
+}
+
+async function pintarRegistro() {
+  const lista = leerRegistros();
+  if (!lista.length) {
+    $("listaRegistro").innerHTML = `<p class="aviso">Aún no hay casos guardados.</p>`;
+    $("estadoCadena").innerHTML = "";
+    return;
+  }
+  $("listaRegistro").innerHTML = lista.map((r, i) => `
+    <div class="fila" style="flex-direction:column;align-items:flex-start">
+      <span><strong>Caso ${lista.length - i}</strong> · ${new Date(r.fecha).toLocaleString("es-CO")} · <span class="chip">${r.nivel}</span></span>
+      <span class="log" style="white-space:normal;word-break:break-all;margin-top:4px">Huella del mensaje: ${r.huella}
+Huella de la entrada: ${r.hashEntrada}</span>
+    </div>`).join("")
+    + `<button class="btn secundario" id="btnBorrar">Borrar todo mi historial</button>`;
+  $("btnBorrar").onclick = () => { localStorage.removeItem(CLAVE_REGISTRO); pintarRegistro(); };
+
+  const c = await verificarCadena(lista);
+  $("estadoCadena").innerHTML = c.ok
+    ? `<span class="ok">Cadena íntegra: ${lista.length} entradas verificadas.</span>`
+    : `<span class="alerta">Cadena alterada en el caso ${lista.length - c.pos + 1}: ${c.motivo}</span>`;
+}
+
+async function comprobarTexto() {
+  const t = $("textoVerif").value.trim();
+  if (!t) { $("resVerif").textContent = "Pega el texto original para comprobarlo."; return; }
+  const h = await sha256(t);
+  const hit = leerRegistros().find(e => e.huella === h);
+  $("resVerif").innerHTML = hit
+    ? `<span class="ok">Coincide con el caso guardado del ${new Date(hit.fecha).toLocaleString("es-CO")} (nivel ${hit.nivel}).</span>`
+    : `<span class="alerta">Ningún caso guardado coincide con este texto.</span>`;
+}
+
+$("btnVerif").onclick = comprobarTexto;
+$("btnCadena").onclick = pintarRegistro;
+
+/* ---------- Verificación de entidad ----------
+   Base de datos de entidades. Cada entidad debe completarse con datos publicados
+   en su sitio oficial. "canales" son números o remitentes oficiales; "dominios" son
+   los sitios oficiales. Lo que quede vacío se marca como pendiente, no como falso. */
+const ENTIDADES = [
+  {
+    nombre: "Bancolombia",
+    alias: ["bancolombia"],
+    dominios: ["bancolombia.com"],
+    canales: [],   // Completar: { tipo: "Línea de atención", valor: "...", fuente: "URL oficial", verificado: "AAAA-MM-DD" }
+  },
+  {
+    nombre: "Davivienda",
+    alias: ["davivienda"],
+    dominios: ["davivienda.com"],
+    canales: []
+  },
+  {
+    nombre: "BBVA Colombia",
+    alias: ["bbva"],
+    dominios: ["bbva.com.co"],
+    canales: []
+  }
+];
+
+function esc(t) {
+  return String(t).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+}
+
+function verificarEntidad() {
+  const valor = $("remitente").value.trim();
+  const lineas = [];
+
+  if (!valor) {
+    $("resEntidad").innerHTML = `<p class="aviso">Escribe un remitente o número para comparar.</p>`;
+    return;
+  }
+
+  if (valor) {
+    const digitos = valor.replace(/\D/g, "");
+    const porCanal = ENTIDADES.find(e => digitos && e.canales.some(c => c.valor.replace(/\D/g, "") === digitos));
+    const porNombre = ENTIDADES.find(e => e.alias.some(a => valor.toLowerCase().includes(a)));
+
+    if (porCanal) {
+      lineas.push({ tipo: "ok", texto: `El remitente coincide con un canal oficial de ${porCanal.nombre}.` });
+    } else if (porNombre) {
+      lineas.push({ tipo: "alerta", texto: `El mensaje dice ser de ${porNombre.nombre}, pero el remitente no está entre sus canales oficiales cargados. Verifica por la app de la entidad.` });
+    } else {
+      lineas.push({ tipo: "neutral", texto: "El remitente no aparece en la lista de canales cargados. Esto no prueba que sea falso, porque la lista aún está incompleta." });
+    }
+  }
+
+  const estilo = { ok: "ok", alerta: "alerta", neutral: "aviso" };
+  $("resEntidad").innerHTML = lineas.map(l =>
+    `<div class="fila"><span class="${estilo[l.tipo]}">${l.texto}</span></div>`
+  ).join("") + `<p class="aviso">Confirma siempre por la app o el sitio oficial de la entidad.</p>`;
+}
+
+/* ---------- Navegación y eventos ---------- */
+document.querySelectorAll(".tab").forEach(btn => {
+  btn.onclick = () => {
+    document.querySelectorAll(".tab").forEach(b => b.classList.remove("activo"));
+    document.querySelectorAll("section").forEach(s => s.classList.remove("activa"));
+    btn.classList.add("activo");
+    $(btn.dataset.tab).classList.add("activa");
+    if (btn.dataset.tab === "registro") pintarRegistro();
+  };
+});
+
+/* ---------- Captura de pantalla (OCR en el navegador) ---------- */
+let tesseractListo = null;
+function cargarTesseract() {
+  if (!tesseractListo) {
+    tesseractListo = new Promise((resolve, reject) => {
+      if (window.Tesseract) return resolve(window.Tesseract);
+      const s = document.createElement("script");
+      s.src = "https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js";
+      s.onload = () => resolve(window.Tesseract);
+      s.onerror = () => reject(new Error("No se pudo cargar el lector de texto."));
+      document.head.appendChild(s);
+    });
+  }
+  return tesseractListo;
+}
+
+$("captura").onchange = async (e) => {
+  const archivo = e.target.files[0];
+  if (!archivo) return;
+  const estado = $("estadoOCR");
+  estado.textContent = "Leyendo la captura en tu dispositivo…";
+  try {
+    const T = await cargarTesseract();
+    const { data } = await T.recognize(archivo, "spa");
+    $("entrada").value = data.text.trim();
+    estado.textContent = "Texto extraído. Revísalo y corrígelo si hace falta antes de analizar.";
+  } catch (err) {
+    estado.textContent = "No pudimos leer la captura. Intenta con una imagen más nítida o pega el texto.";
+  }
+};
+
+$("btnAnalizar").onclick = analizar;
+$("btnEjemplo").onclick = () => {
+  $("entrada").value = "Estimado cliente, su cuenta Bancolombia será bloqueada hoy por actividad inusual. Para desbloquearla confirme su clave y código en http://bancolombia-seguro.xyz/validar";
+};
+$("btnEntidad").onclick = verificarEntidad;
+
+pintarRegistro();
+</script>
+</body>
+</html>
