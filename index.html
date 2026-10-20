@@ -74,6 +74,15 @@
   .consent input { margin-top: 4px; }
   .log { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: .78rem; background: #0f1b2d; color: #cfe3ff; padding: 10px; border-radius: 8px; overflow-x: auto; white-space: pre; }
   .hidden { display: none; }
+  .landing { display: block; max-width: 680px; margin: 0 auto; padding: 22px 16px 8px; }
+  .landing.hidden { display: none; }
+  .landing h2 { font-size: 1.35rem; margin: 4px 0 8px; }
+  .landing .intro { font-size: 1rem; color: var(--texto); margin: 0 0 16px; }
+  .pasos { display: grid; gap: 10px; margin-bottom: 16px; }
+  .paso { background: #fff; border-left: 4px solid var(--verde); border-radius: 10px; padding: 12px 14px; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+  .paso strong { color: var(--azul); }
+  .limites { font-size: .85rem; color: var(--gris); background: #fff; border-radius: 10px; padding: 12px 14px; }
+  .limites li { margin-bottom: 4px; }
 </style>
 </head>
 <body>
@@ -83,14 +92,30 @@
   <p>Análisis bajo demanda de posibles fraudes digitales</p>
 </header>
 
-<nav>
+<section class="landing" id="inicio">
+  <h2>¿Te llegó un mensaje o enlace que parece sospechoso?</h2>
+  <p class="intro">Identifica tu fraude te ayuda a revisarlo antes de hacer clic o responder. Te dice qué tan riesgoso parece, por qué, qué hacer y dónde denunciar.</p>
+  <div class="pasos">
+    <div class="paso"><strong>1. Pega o sube el contenido.</strong> Un mensaje, un enlace o una captura de pantalla.</div>
+    <div class="paso"><strong>2. Revisa el resultado.</strong> Verás un nivel de riesgo (bajo, medio o alto) con los motivos.</div>
+    <div class="paso"><strong>3. Actúa con seguridad.</strong> Sigue los pasos recomendados y, si hace falta, denuncia en la Policía Nacional o la Fiscalía.</div>
+  </div>
+  <ul class="limites">
+    <li>El análisis se hace en tu dispositivo. El contenido no se envía a un servidor.</li>
+    <li>Es un prototipo. No reemplaza a tu entidad financiera ni a las autoridades.</li>
+    <li>Ante la duda, comunícate con la entidad por su canal oficial, no con los datos del mensaje.</li>
+  </ul>
+  <button class="btn" id="btnEmpezar">Empezar</button>
+</section>
+
+<nav class="hidden" id="barra">
   <button class="tab activo" data-tab="analizar">¿Te llegó algo sospechoso?</button>
   <button class="tab" data-tab="entidad">Verificar entidad</button>
   <button class="tab" data-tab="consentimiento">Permisos</button>
   <button class="tab" data-tab="registro">Registro</button>
 </nav>
 
-<main>
+<main class="hidden" id="contenido">
 
   <!-- ANALIZAR -->
   <section id="analizar" class="activa">
@@ -403,6 +428,12 @@ async function comprobarTexto() {
 }
 
 $("btnVerif").onclick = comprobarTexto;
+  $("btnEmpezar").onclick = () => {
+  $("inicio").classList.add("hidden");
+  $("barra").classList.remove("hidden");
+  $("contenido").classList.remove("hidden");
+  window.scrollTo(0, 0);
+};
 $("btnCadena").onclick = pintarRegistro;
 
 /* ---------- Verificación de entidad ----------
