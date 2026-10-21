@@ -1,0 +1,49 @@
+name: Evaluación del agente IA
+
+# Constitución §V: los cambios en agente, IA o reglas se miden contra el conjunto dorado con el proveedor REAL.
+# Nunca corre en ci.yml (que no consume cuota). Declarar como check obligatorio para estas rutas en la protección de main.
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - apps/api/src/agent/**
+      - apps/api/src/ai/**
+      - packages/core/src/rules/**
+
+permissions:
+  contents: read
+
+jobs:
+  eval:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      NODE_ENV: test
+      AI_PROVIDER: ${{ vars.EVAL_AI_PROVIDER || 'groq' }}
+      AI_MODEL: ${{ vars.EVAL_AI_MODEL || 'llama-3.3-70b-versatile' }}
+      AI_API_KEY: ${{ secrets.EVAL_AI_API_KEY }}
+      DB_PATH: ":memory:"
+      PORT: "8787"
+      RATE_LIMIT_ANALISIS: "1000"
+      EVAL_API_URL: http://localhost:8787
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Verificar secreto
+        run: |
+          if [ -z "$AI_API_KEY" ]; then echo "::error::Configura el secreto EVAL_AI_API_KEY"; exit 1; fi
+      - run: npm ci
+      - name: Levantar API
+        run: |
+          npm run start -w @itf/api > api.log 2>&1 &
+          for i in $(seq 1 30); do curl -fsS localhost:8787/api/salud && exit 0; sleep 2; done
+          cat api.log; exit 1
+      - name: Conjunto dorado con el agente
+        run: npm run eval -- --mode=agent
+      - name: Latencia p95 (SC-001)
+        run: npm run smoke:ai -w @itf/api
+        env:
+          SMOKE_API_URL: http://localhost:8787

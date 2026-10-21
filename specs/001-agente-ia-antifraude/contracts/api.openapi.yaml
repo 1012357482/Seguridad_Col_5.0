@@ -1,0 +1,242 @@
+openapi: 3.1.0
+info:
+  title: Identifica tu fraude — API
+  version: 0.1.0
+  description: >
+    API de la PoC (Fase 1). Todas las rutas bajo /api. Cabecera `X-Client-Id` (UUID v4 anónimo
+    generado en el dispositivo) requerida en rutas que crean o leen datos de la persona.
+    Errores con formato Problem (`application/problem+json`). Límite: 20 análisis / 10 min por IP.
+    Esquemas detallados de Veredicto, Motivo, SourceCheck y Caso: ver data-model.md.
+servers:
+  - url: https://{api-host}/api
+
+paths:
+  /salud:
+    get:
+      summary: Estado del servicio (también usado por keepalive)
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { type: object, properties: { ok: { type: boolean }, version: { type: string } } } } } }
+
+  /config:
+    get:
+      summary: Configuración pública (proveedor IA activo para el aviso de privacidad)
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ia: { type: object, properties: { proveedor: { type: string }, modelo: { type: string }, disponible: { type: boolean } } }
+                  versionReglas: { type: string }
+                  textoConsentimientoVersion: { type: string }
+
+  /consentimientos:
+    post:
+      summary: Registra un consentimiento explícito para un único análisis o transcripción (FR-020)
+      parameters: [ { $ref: '#/components/parameters/ClientId' } ]
+      requestBody:
+        content: { application/json: { schema: { type: object, required: [alcance, textoVersion], properties: { alcance: { enum: [analisis_ia, transcripcion] }, textoVersion: { type: string } } } } }
+      responses:
+        '201': { content: { application/json: { schema: { type: object, properties: { consentId: { type: string, format: uuid } } } } } }
+
+  /analisis:
+    post:
+      summary: Analiza evidencia con reglas + fuentes abiertas + agente IA
+      description: >
+        `texto` debe venir ya redactado por el cliente (el servidor vuelve a redactar).
+        Sin `consentId` válido → 400. Nunca falla por la IA: si no responde, `ia.estado = no_disponible`.
+      parameters: [ { $ref: '#/components/parameters/ClientId' } ]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [consentId, tipo, texto]
+              properties:
+                consentId: { type: string, format: uuid }
+                tipo: { enum: [texto, enlace, captura, audio, relato_llamada] }
+                texto: { type: string, maxLength: 5000 }
+                numeros: { type: array, items: { type: string }, maxItems: 5 }
+                relato: { $ref: '#/components/schemas/RelatoLlamada' }
+                consultarEnlaces: { type: boolean, default: true, description: 'Permiso Verificador de enlaces' }
+      responses:
+        '200': { content: { application/json: { schema: { $ref: '#/components/schemas/Veredicto' } } } }
+        '400': { $ref: '#/components/responses/Problem' }
+        '429': { $ref: '#/components/responses/Problem' }
+
+  /transcripciones:
+    post:
+      summary: Transcribe un audio (≤3 min, ≤25 MB). El audio no se almacena (FR-001b)
+      parameters: [ { $ref: '#/components/parameters/ClientId' } ]
+      requestBody:
+        content:
+          multipart/form-data:
+            schema: { type: object, required: [consentId, audio], properties: { consentId: { type: string }, audio: { type: string, format: binary } } }
+      responses:
+        '200': { content: { application/json: { schema: { type: object, properties: { texto: { type: string }, duracionSeg: { type: number }, truncado: { type: boolean } } } } } }
+        '413': { $ref: '#/components/responses/Problem' }
+        '422': { $ref: '#/components/responses/Problem' }   # audio sin voz reconocible
+
+  /entidades/verificar:
+    post:
+      summary: Verifica remitente/número contra canales oficiales y reportes de comunidad
+      requestBody:
+        content: { application/json: { schema: { type: object, required: [valor], properties: { valor: { type: string, maxLength: 100 } } } } }
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  resultado: { enum: [coincide_oficial, no_coincide, sin_datos] }
+                  entidad: { type: string }
+                  reportesComunidad: { type: integer }
+                  fuentes: { type: array, items: { $ref: '#/components/schemas/SourceCheck' } }
+
+  /casos:
+    post:
+      summary: Guarda un caso firmado y encadenado (requiere permiso de registro en el cliente)
+      parameters: [ { $ref: '#/components/parameters/ClientId' } ]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [huellaEvidencia, tipoEvidencia, veredicto]
+              properties:
+                huellaEvidencia: { type: string, pattern: '^[a-f0-9]{64}$' }
+                tipoEvidencia: { type: string }
+                veredicto: { $ref: '#/components/schemas/Veredicto' }
+                consentId: { type: string }
+      responses:
+        '201': { content: { application/json: { schema: { $ref: '#/components/schemas/Comprobante' } } } }
+    get:
+      summary: Lista los casos del identificador anónimo, con estado de la cadena
+      parameters: [ { $ref: '#/components/parameters/ClientId' } ]
+      responses:
+        '200': { content: { application/json: { schema: { type: object, properties: { casos: { type: array, items: { $ref: '#/components/schemas/Caso' } }, cadena: { $ref: '#/components/schemas/Verificacion' } } } } } }
+    delete:
+      summary: Borra todo el historial del identificador anónimo (FR-019)
+      parameters: [ { $ref: '#/components/parameters/ClientId' } ]
+      responses: { '204': { description: Borrado } }
+
+  /casos/{id}:
+    get:
+      summary: Consulta pública de un caso por ID (sin owner)
+      parameters: [ { name: id, in: path, required: true, schema: { type: string } } ]
+      responses:
+        '200': { content: { application/json: { schema: { $ref: '#/components/schemas/Comprobante' } } } }
+        '404': { description: No existe (o se perdió en un redespliegue — usar el comprobante descargado) }
+
+  /casos/comprobar:
+    post:
+      summary: ¿Coincide esta huella con algún caso del identificador? (el texto nunca se envía)
+      parameters: [ { $ref: '#/components/parameters/ClientId' } ]
+      requestBody: { content: { application/json: { schema: { type: object, properties: { huella: { type: string, pattern: '^[a-f0-9]{64}$' } } } } } }
+      responses:
+        '200': { content: { application/json: { schema: { type: object, properties: { coincide: { type: boolean }, casoId: { type: string }, creadoEn: { type: string } } } } } }
+
+  /comprobantes/verificar:
+    post:
+      summary: Verifica un comprobante descargado (firma + hash), aunque el caso ya no exista en la BD
+      requestBody: { content: { application/json: { schema: { $ref: '#/components/schemas/Comprobante' } } } }
+      responses:
+        '200': { content: { application/json: { schema: { type: object, properties: { firmaValida: { type: boolean }, hashValido: { type: boolean }, enBaseDeDatos: { type: boolean } } } } } }
+
+  /clave-publica:
+    get:
+      summary: Clave pública Ed25519 vigente (PEM) y su id
+      responses: { '200': { content: { application/json: { schema: { type: object, properties: { claveId: { type: string }, pem: { type: string } } } } } } }
+
+  /reportes:
+    post:
+      summary: Reporta un dominio o número (una vez por persona e indicador)
+      parameters: [ { $ref: '#/components/parameters/ClientId' } ]
+      requestBody:
+        content: { application/json: { schema: { type: object, required: [indicador, tipo], properties: { indicador: { type: string }, tipo: { enum: [dominio, numero] }, modalidad: { type: string }, entidad: { type: string } } } } }
+      responses: { '201': { description: Registrado }, '200': { description: Ya lo había reportado } }
+
+  /estadisticas:
+    get:
+      summary: Tendencias agregadas y anónimas para el panel público (grupos con ≥3 casos)
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  totales: { type: object, properties: { casos: { type: integer }, alto: { type: integer }, medio: { type: integer }, bajo: { type: integer } } }
+                  porModalidad: { type: array, items: { type: object, properties: { modalidad: { type: string }, casos: { type: integer } } } }
+                  porEntidad: { type: array, items: { type: object, properties: { entidad: { type: string }, casos: { type: integer } } } }
+                  porSemana: { type: array, items: { type: object, properties: { semana: { type: string }, casos: { type: integer } } } }
+                  generadoEn: { type: string, format: date-time }
+
+components:
+  parameters:
+    ClientId: { name: X-Client-Id, in: header, required: true, schema: { type: string, format: uuid } }
+  responses:
+    Problem:
+      description: Error
+      content: { application/problem+json: { schema: { type: object, properties: { title: { type: string }, detail: { type: string }, status: { type: integer } } } } }
+  schemas:
+    RelatoLlamada:
+      type: object
+      properties:
+        quienDijoSer: { type: string }
+        quePidio: { type: array, items: { enum: [clave, codigo, datos_tarjeta, transferencia, instalar_app, otro] } }
+        numeroOrigen: { type: string }
+        huboPresion: { type: boolean }
+        entregoAlgo: { enum: [nada, datos, dinero, ambos] }
+        notas: { type: string, maxLength: 2000 }
+    SourceCheck:
+      type: object
+      properties:
+        fuente: { enum: [safe_browsing, urlhaus, rdap, entidades, comunidad] }
+        indicador: { type: string }
+        resultado: { enum: [coincide, limpio, sin_datos, senal] }
+        detalle: { type: string }
+        consultadoEn: { type: string, format: date-time }
+        estado: { enum: [ok, no_disponible, timeout] }
+    Veredicto:
+      type: object
+      description: Ver data-model.md §2
+      required: [nivel, puntaje, modalidad, motivos, queHacer, denuncia, fuentes, ia, versionReglas, generadoEn]
+      properties:
+        nivel: { enum: [bajo, medio, alto] }
+        puntaje: { type: integer, minimum: 0, maximum: 100 }
+        modalidad: { type: string }
+        motivos: { type: array, items: { type: object, properties: { texto: { type: string }, origen: { enum: [regla, ia, fuente] }, categoria: { type: string }, fuente: { type: string }, consultadoEn: { type: string } } } }
+        categorias: { type: object, additionalProperties: { type: integer } }
+        queHacer: { type: array, items: { type: string } }
+        denuncia: { type: array, items: { type: object, properties: { nombre: { type: string }, url: { type: string } } } }
+        fuentes: { type: array, items: { $ref: '#/components/schemas/SourceCheck' } }
+        discrepancia: { type: string }
+        ia: { type: object, properties: { estado: { enum: [usada, no_disponible, sin_consentimiento, desactivada] }, proveedor: { type: string }, modelo: { type: string } } }
+        versionReglas: { type: string }
+        generadoEn: { type: string, format: date-time }
+    Caso:
+      type: object
+      properties:
+        id: { type: string }
+        creadoEn: { type: string }
+        huellaEvidencia: { type: string }
+        tipoEvidencia: { type: string }
+        veredicto: { $ref: '#/components/schemas/Veredicto' }
+        previaOwner: { type: string }
+        previaGlobal: { type: string }
+        hashEntrada: { type: string }
+    Verificacion:
+      type: object
+      properties: { ok: { type: boolean }, rotoEn: { type: string }, motivo: { type: string } }
+    Comprobante:
+      description: Ver contracts/case-receipt.md
+      type: object
+      properties:
+        formato: { const: identifica-tu-fraude/comprobante@1 }
+        caso: { $ref: '#/components/schemas/Caso' }
+        firma: { type: string }
+        claveId: { type: string }
+        clavePublicaPem: { type: string }

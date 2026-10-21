@@ -1,0 +1,21 @@
+name: Keepalive API
+
+# Render gratuito apaga la API tras 15 min sin tráfico. Ping cada 14 min de 6 a. m. a 11 p. m. (hora de Colombia),
+# ~2.300 ejecuciones/mes. Requiere repositorio público (Actions ilimitado); GitHub desactiva los cron tras 60 días sin actividad.
+on:
+  schedule:
+    - cron: "*/14 11-23,0-4 * * *"
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - env:
+          API: ${{ secrets.API_PUBLIC_URL }}
+        run: |
+          if [ -z "$API" ]; then echo "API_PUBLIC_URL no configurado"; exit 0; fi
+          curl -fsS --max-time 90 "$API/api/salud" || echo "::warning::La API no respondió"
