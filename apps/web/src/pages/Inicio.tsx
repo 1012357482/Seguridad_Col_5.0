@@ -1,0 +1,58 @@
+import { Link } from "react-router-dom";
+
+export default function Inicio() {
+  return (
+    <>
+      <section className="hero">
+        <h2>¿Te llegó un mensaje, enlace, audio o llamada que parece sospechosa?</h2>
+        <p>
+          Identifica tu fraude lo revisa antes de que hagas clic, respondas o transfieras. Te dice qué tan riesgoso parece, por qué, qué hacer y dónde
+          denunciar.
+        </p>
+      </section>
+      <div className="pasos">
+        <div className="paso">
+          <strong>1. Pega, sube o cuenta.</strong> Un mensaje, un enlace, una captura de pantalla, una nota de voz o lo que te dijeron por teléfono.
+        </div>
+        <div className="paso">
+          <strong>2. Revisa el resultado.</strong> Un nivel de riesgo (bajo, medio o alto) con los motivos, contrastados con fuentes abiertas.
+        </div>
+        <div className="paso">
+          <strong>3. Actúa con seguridad.</strong> Sigue los pasos, guarda un registro verificable y, si hace falta, denuncia ante la Policía o la
+          Fiscalía.
+        </div>
+      </div>
+      <Link className="btn" to="/analizar">
+        Empezar
+      </Link>
+      <div className="accesos">
+        <Link className="acceso" to="/me-llamaron">
+          <span className="icono" aria-hidden="true">📞</span>
+          <strong>Me llamaron</strong>
+          <span>Cuéntanos la llamada y te orientamos.</span>
+        </Link>
+        <Link className="acceso" to="/entidad">
+          <span className="icono" aria-hidden="true">🏦</span>
+          <strong>Verificar entidad</strong>
+          <span>¿Ese número o remitente es oficial?</span>
+        </Link>
+        <Link className="acceso" to="/panel">
+          <span className="icono" aria-hidden="true">📊</span>
+          <strong>Panel</strong>
+          <span>Fraudes más reportados.</span>
+        </Link>
+        <Link className="acceso" to="/registro">
+          <span className="icono" aria-hidden="true">🧾</span>
+          <strong>Registro</strong>
+          <span>Tus casos y comprobantes.</span>
+        </Link>
+      </div>
+      <ul className="tarjeta lista ayuda">
+        <li>Sin conexión, el análisis se hace con reglas en tu dispositivo.</li>
+        <li>Con tu permiso en cada análisis, el contenido (con tus datos personales ocultos) se revisa con IA y fuentes abiertas.</li>
+        <li>Es una versión de prueba: no reemplaza a tu entidad financiera ni a las autoridades.</li>
+        <li>Ante la duda, comunícate con la entidad por su canal oficial, no con los datos del mensaje.</li>
+      </ul>
+    </>
+  );
+}

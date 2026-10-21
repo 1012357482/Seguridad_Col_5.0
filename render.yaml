@@ -1,0 +1,34 @@
+# Blueprint de Render: API en contenedor Docker, plan gratuito.
+# Disco efímero: SQLite se reinicia en cada despliegue (aceptado para la prueba de concepto).
+services:
+  - type: web
+    name: identifica-tu-fraude-api
+    runtime: docker
+    plan: free
+    region: oregon
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /api/salud
+    autoDeploy: false # el despliegue lo dispara GitHub Actions solo cuando CI pasa
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: AI_PROVIDER
+        value: groq
+      - key: AI_MODEL
+        value: llama-3.3-70b-versatile
+      - key: AI_STT_MODEL
+        value: whisper-large-v3
+      - key: SERVE_WEB
+        value: "false"
+      - key: AI_API_KEY
+        sync: false
+      - key: SAFE_BROWSING_API_KEY
+        sync: false
+      - key: URLHAUS_AUTH_KEY
+        sync: false
+      - key: CASE_SIGNING_KEY
+        sync: false
+      - key: OWNER_SALT
+        generateValue: true
+      - key: CORS_ORIGIN
+        sync: false

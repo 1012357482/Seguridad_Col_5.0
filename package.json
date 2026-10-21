@@ -1,0 +1,35 @@
+{
+  "name": "identifica-tu-fraude",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Agente IA facilitador de detección y orientación frente al fraude digital (PWA + API)",
+  "type": "module",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "engines": {
+    "node": ">=22.13"
+  },
+  "scripts": {
+    "dev": "concurrently -n api,web -c magenta,green \"npm run dev -w @itf/api\" \"npm run dev -w @itf/web\"",
+    "build": "npm run build -w @itf/web",
+    "start": "npm run start -w @itf/api",
+    "test": "npm run test -w @itf/core && npm run test -w @itf/api && npm run test -w @itf/web",
+    "test:e2e": "npm run test:e2e -w @itf/web",
+    "eval": "npm run eval -w @itf/core --",
+    "lint": "eslint .",
+    "typecheck": "tsc -p packages/core --noEmit && tsc -p apps/api --noEmit && tsc -p apps/web --noEmit"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.29.0",
+    "@types/node": "^22.15.32",
+    "concurrently": "^9.1.2",
+    "eslint": "^9.29.0",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "globals": "^16.2.0",
+    "prettier": "^3.5.3",
+    "typescript": "~5.8.3",
+    "typescript-eslint": "^8.34.1"
+  }
+}

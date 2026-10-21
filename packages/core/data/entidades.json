@@ -1,0 +1,97 @@
+{
+  "version": "2026-10-20",
+  "nota": "Catálogo semilla. 'verificado: null' = pendiente de confirmar contra el sitio oficial. Canales vacíos = sin datos suficientes, nunca 'falso' (FR-013).",
+  "entidades": [
+    {
+      "id": "bancolombia",
+      "nombre": "Bancolombia",
+      "tipo": "banco",
+      "alias": ["bancolombia", "bancolombi", "bancol0mbia"],
+      "dominios": [
+        { "valor": "bancolombia.com", "fuente": "https://www.bancolombia.com", "verificado": null },
+        { "valor": "grupobancolombia.com", "fuente": "https://www.grupobancolombia.com", "verificado": null }
+      ],
+      "canales": []
+    },
+    {
+      "id": "davivienda",
+      "nombre": "Davivienda",
+      "tipo": "banco",
+      "alias": ["davivienda", "davivenda"],
+      "dominios": [{ "valor": "davivienda.com", "fuente": "https://www.davivienda.com", "verificado": null }],
+      "canales": []
+    },
+    {
+      "id": "bbva",
+      "nombre": "BBVA Colombia",
+      "tipo": "banco",
+      "alias": ["bbva"],
+      "dominios": [{ "valor": "bbva.com.co", "fuente": "https://www.bbva.com.co", "verificado": null }],
+      "canales": []
+    },
+    {
+      "id": "nequi",
+      "nombre": "Nequi",
+      "tipo": "billetera",
+      "alias": ["nequi", "nekki", "nequl"],
+      "dominios": [{ "valor": "nequi.com.co", "fuente": "https://www.nequi.com.co", "verificado": null }],
+      "canales": []
+    },
+    {
+      "id": "daviplata",
+      "nombre": "Daviplata",
+      "tipo": "billetera",
+      "alias": ["daviplata"],
+      "dominios": [{ "valor": "daviplata.com", "fuente": "https://www.daviplata.com", "verificado": null }],
+      "canales": []
+    },
+    {
+      "id": "bancodebogota",
+      "nombre": "Banco de Bogotá",
+      "tipo": "banco",
+      "alias": ["banco de bogota", "banco de bogotá", "bancodebogota"],
+      "dominios": [{ "valor": "bancodebogota.com", "fuente": "https://www.bancodebogota.com", "verificado": null }],
+      "canales": []
+    },
+    {
+      "id": "bancoagrario",
+      "nombre": "Banco Agrario",
+      "tipo": "banco",
+      "alias": ["banco agrario", "bancoagrario"],
+      "dominios": [{ "valor": "bancoagrario.gov.co", "fuente": "https://www.bancoagrario.gov.co", "verificado": null }],
+      "canales": []
+    },
+    {
+      "id": "dian",
+      "nombre": "DIAN",
+      "tipo": "autoridad",
+      "alias": ["dian"],
+      "dominios": [{ "valor": "dian.gov.co", "fuente": "https://www.dian.gov.co", "verificado": null }],
+      "canales": []
+    },
+    {
+      "id": "fiscalia",
+      "nombre": "Fiscalía General de la Nación",
+      "tipo": "autoridad",
+      "alias": ["fiscalia", "fiscalía"],
+      "dominios": [{ "valor": "fiscalia.gov.co", "fuente": "https://www.fiscalia.gov.co", "verificado": null }],
+      "canales": []
+    },
+    {
+      "id": "policia",
+      "nombre": "Policía Nacional",
+      "tipo": "autoridad",
+      "alias": ["policia", "policía"],
+      "dominios": [{ "valor": "policia.gov.co", "fuente": "https://www.policia.gov.co", "verificado": null }],
+      "canales": []
+    },
+    {
+      "id": "superfinanciera",
+      "nombre": "Superintendencia Financiera",
+      "tipo": "autoridad",
+      "alias": ["superfinanciera", "superintendencia financiera"],
+      "dominios": [{ "valor": "superfinanciera.gov.co", "fuente": "https://www.superfinanciera.gov.co", "verificado": null }],
+      "canales": []
+    }
+  ]
+}

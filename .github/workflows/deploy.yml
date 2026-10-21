@@ -1,0 +1,67 @@
+name: Deploy
+
+# Solo se publica si CI pasa (FR-030). PWA → GitHub Pages (misma URL pública); API → Render.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+jobs:
+  ci:
+    uses: ./.github/workflows/ci.yml
+
+  web:
+    needs: ci
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Compilar PWA
+        run: npm run build -w @itf/web
+        env:
+          VITE_API_URL: ${{ secrets.API_PUBLIC_URL }}
+          VITE_BASE: /${{ github.event.repository.name }}/
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: apps/web/dist
+      - id: deployment
+        uses: actions/deploy-pages@v4
+
+  api:
+    needs: ci
+    runs-on: ubuntu-latest
+    steps:
+      - name: Disparar despliegue en Render
+        env:
+          HOOK: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+        run: |
+          if [ -z "$HOOK" ]; then echo "::warning::RENDER_DEPLOY_HOOK_URL no configurado; se omite la API."; exit 0; fi
+          curl -fsS -X POST "$HOOK"
+      - name: Esperar a que la API responda
+        env:
+          API: ${{ secrets.API_PUBLIC_URL }}
+        run: |
+          if [ -z "$API" ]; then exit 0; fi
+          for i in $(seq 1 40); do
+            if curl -fsS "$API/api/salud"; then echo; echo "API disponible"; exit 0; fi
+            sleep 15
+          done
+          echo "::error::La API no respondió en 10 minutos"; exit 1

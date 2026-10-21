@@ -1,0 +1,29 @@
+{
+  "name": "@itf/api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch --disable-warning=ExperimentalWarning --env-file-if-exists=.env src/index.ts",
+    "start": "tsx --disable-warning=ExperimentalWarning src/index.ts",
+    "test": "vitest run",
+    "smoke:ai": "tsx --env-file-if-exists=.env scripts/smoke-ai.ts"
+  },
+  "dependencies": {
+    "@fastify/cors": "^11.0.1",
+    "@fastify/helmet": "^13.0.1",
+    "@fastify/multipart": "^9.0.3",
+    "@fastify/rate-limit": "^10.3.0",
+    "@fastify/static": "^8.2.0",
+    "@itf/core": "*",
+    "fastify": "^5.4.0",
+    "fastify-plugin": "^5.1.0",
+    "openai": "^4.104.0",
+    "tsx": "^4.20.3",
+    "zod": "^3.25.67"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.32",
+    "vitest": "^3.2.4"
+  }
+}

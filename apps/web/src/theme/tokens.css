@@ -1,0 +1,101 @@
+/* Tokens de diseño heredados del prototipo (legacy/index.html): morado + verde.
+   Claro por defecto; oscuro por preferencia del sistema o data-theme="dark". */
+:root {
+  color-scheme: light;
+  --morado-900: #3d0f5e;
+  --morado-800: #5b1a8a;
+  --morado-700: #7b1fa2;
+  --morado-500: #8a2be2;
+  --morado-100: #efe3f8;
+  --verde: #22e07a;
+  --verde-oscuro: #0e8f4b;
+
+  --fondo: #f5eefb;
+  --superficie: #ffffff;
+  --superficie-2: #faf6fd;
+  --borde: #e3d6ef;
+  --texto: #1e1433;
+  --texto-2: #5f5670;
+  --texto-3: #675f7c;
+  --enlace: #6a1b9a;
+  --foco: #22e07a;
+
+  /* Estados de riesgo (paleta de estado: siempre con ícono + texto) */
+  --riesgo-bajo: #0ca30c;
+  --riesgo-medio: #fab219;
+  --riesgo-alto: #d03b3b;
+  --riesgo-bajo-fondo: #e8f7e8;
+  --riesgo-medio-fondo: #fff5dc;
+  --riesgo-alto-fondo: #fde9e9;
+  --riesgo-bajo-texto: #0b6b0b;
+  --riesgo-medio-texto: #7a5200;
+  --riesgo-alto-texto: #a12626;
+
+  /* Series de origen del motivo (validadas con validate_palette.js) */
+  --serie-regla: #7b1fa2;
+  --serie-ia: #eb6834;
+  --serie-fuente: #1baf7a;
+  --serie-unica: #7b1fa2;
+
+  --grilla: #ece6f2;
+  --eje: #c9bdd6;
+
+  --sombra: 0 1px 2px rgba(30, 20, 51, 0.06), 0 4px 16px rgba(30, 20, 51, 0.06);
+  --radio: 14px;
+  --radio-sm: 10px;
+  --encabezado: linear-gradient(135deg, #8a2be2 0%, #6a1fb0 55%, #5b1a8a 100%);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --fondo: #120b1c;
+    --superficie: #1c1529;
+    --superficie-2: #241b34;
+    --borde: #3a2d50;
+    --texto: #f3eefa;
+    --texto-2: #c9bfd9;
+    --texto-3: #a197b3;
+    --enlace: #d9b3f5;
+    --morado-100: #2e2042;
+    --riesgo-bajo-fondo: #10301a;
+    --riesgo-medio-fondo: #3a2c08;
+    --riesgo-alto-fondo: #3d1414;
+    --riesgo-bajo-texto: #7ee08a;
+    --riesgo-medio-texto: #ffd36b;
+    --riesgo-alto-texto: #ff9a9a;
+    --serie-regla: #b26ad6;
+    --serie-ia: #d95926;
+    --serie-fuente: #199e70;
+    --serie-unica: #b26ad6;
+    --grilla: #2c2240;
+    --eje: #4a3d60;
+    --sombra: 0 1px 2px rgba(0, 0, 0, 0.4), 0 4px 16px rgba(0, 0, 0, 0.3);
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --fondo: #120b1c;
+  --superficie: #1c1529;
+  --superficie-2: #241b34;
+  --borde: #3a2d50;
+  --texto: #f3eefa;
+  --texto-2: #c9bfd9;
+  --texto-3: #a197b3;
+  --enlace: #d9b3f5;
+  --morado-100: #2e2042;
+  --riesgo-bajo-fondo: #10301a;
+  --riesgo-medio-fondo: #3a2c08;
+  --riesgo-alto-fondo: #3d1414;
+  --riesgo-bajo-texto: #7ee08a;
+  --riesgo-medio-texto: #ffd36b;
+  --riesgo-alto-texto: #ff9a9a;
+  --serie-regla: #b26ad6;
+  --serie-ia: #d95926;
+  --serie-fuente: #199e70;
+  --serie-unica: #b26ad6;
+  --grilla: #2c2240;
+  --eje: #4a3d60;
+  --sombra: 0 1px 2px rgba(0, 0, 0, 0.4), 0 4px 16px rgba(0, 0, 0, 0.3);
+}

@@ -1,0 +1,22 @@
+{
+  "name": "@itf/core",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Reglas explicables, redacción de datos personales, huellas y tipos compartidos entre la PWA y la API",
+  "exports": {
+    ".": "./src/index.ts",
+    "./data/entidades.json": "./data/entidades.json"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "eval": "tsx test/eval.ts"
+  },
+  "dependencies": {
+    "zod": "^3.25.67"
+  },
+  "devDependencies": {
+    "tsx": "^4.20.3",
+    "vitest": "^3.2.4"
+  }
+}
