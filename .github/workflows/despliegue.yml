@@ -1,0 +1,33 @@
+name: Desplegar Proyecto
+
+# Define cuándo se ejecuta el proceso
+on:
+  push:
+    branches:
+      - main     # Se ejecuta automáticamente al subir cambios a la rama main
+      - master   # O si tu rama principal se llama master
+  workflow_dispatch: # Te permite ejecutarlo manualmente con un botón cuando quieras
+
+jobs:
+  despliegue:
+    runs-on: ubuntu-latest # Utiliza un servidor virtual con Linux que provee GitHub
+
+    steps:
+      # 1. Descarga el código de tu repositorio al servidor virtual
+      - name: Descargar codigo de mi repositorio
+        uses: actions/checkout@v4
+
+      # 2. Verifica qué archivos existen
+      - name: Listar archivos
+        run: |
+          ls -la
+
+      # 3. Comandos de construcción o preparación (ejemplo básico)
+      - name: Preparar entorno
+        run: |
+          echo "Iniciando proceso de preparación..."
+
+      # 4. Paso final de despliegue
+      - name: Ejecutar despliegue
+        run: |
+          echo "¡El proyecto se ha preparado para el despliegue!"
