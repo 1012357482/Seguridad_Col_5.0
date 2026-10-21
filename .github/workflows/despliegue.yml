@@ -1,33 +1,38 @@
-name: Desplegar Proyecto
+name: Desplegar a GitHub Pages
 
-# Define cuándo se ejecuta el proceso
 on:
   push:
     branches:
-      - main     # Se ejecuta automáticamente al subir cambios a la rama main
-      - master   # O si tu rama principal se llama master
-  workflow_dispatch: # Te permite ejecutarlo manualmente con un botón cuando quieras
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: 'pages'
+  cancel-in-progress: true
 
 jobs:
-  despliegue:
-    runs-on: ubuntu-latest # Utiliza un servidor virtual con Linux que provee GitHub
-
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
     steps:
-      # 1. Descarga el código de tu repositorio al servidor virtual
-      - name: Descargar codigo de mi repositorio
+      - name: Descargar código
         uses: actions/checkout@v4
 
-      # 2. Verifica qué archivos existen
-      - name: Listar archivos
-        run: |
-          ls -la
+      - name: Configurar GitHub Pages
+        uses: actions/configure-pages@v5
 
-      # 3. Comandos de construcción o preparación (ejemplo básico)
-      - name: Preparar entorno
-        run: |
-          echo "Iniciando proceso de preparación..."
+      - name: Subir artefacto de archivos estáticos
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
 
-      # 4. Paso final de despliegue
-      - name: Ejecutar despliegue
-        run: |
-          echo "¡El proyecto se ha preparado para el despliegue!"
+      - name: Desplegar a GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
